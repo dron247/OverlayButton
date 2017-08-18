@@ -6,23 +6,13 @@ import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.Toast
-
-import java.io.IOException
-import java.io.InputStream
-import java.util.Scanner
-import java.util.SortedMap
-import java.util.TreeMap
+import java.util.*
 
 //private String _;
 
@@ -55,7 +45,7 @@ class MyService : Service() {
                     mParentApp.appendInfo(foregroundTask)
                     mLastClickTime = System.currentTimeMillis()
 
-                    Toast.makeText(this, "Данные получены", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Data acquired", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -76,9 +66,11 @@ class MyService : Service() {
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT)
-        windowLayoutParams.gravity = Gravity.CENTER or Gravity.LEFT
-        windowLayoutParams.x = 0
-        windowLayoutParams.y = 100
+        windowLayoutParams.apply {
+            gravity = Gravity.CENTER or Gravity.LEFT
+            x = 0
+            y = 10
+        }
 
         val windowManager = windowManager
         windowManager.addView(root, windowLayoutParams)
@@ -91,6 +83,7 @@ class MyService : Service() {
             private var initialTouchY: Float = 0.toFloat()
             private var isClick = false
 
+            // catch a click on overlay button - not something trivial
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -136,7 +129,7 @@ class MyService : Service() {
 
 
     private val foregroundTask: Info
-        get() {
+        get() { // find out which app under our overlay
             var currentAppPackage = "error"
             var currentAppName = "error"
             var currentAppVersion = "error"

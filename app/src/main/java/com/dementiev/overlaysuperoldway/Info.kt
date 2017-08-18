@@ -1,6 +1,7 @@
 package com.dementiev.overlaysuperoldway
 
 /**
+ * A data class, like POJO
  * Created by dron on 01.04.17.
  */
 

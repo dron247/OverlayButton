@@ -1,28 +1,26 @@
 package com.dementiev.overlaysuperoldway
 
+import android.app.AppOpsManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.Toast
-import android.app.AppOpsManager
-import android.content.Context
-import android.content.Context.APP_OPS_SERVICE
 
 
 class MainActivity : AppCompatActivity() {
     private val OVERLAY_PERMISSION_REQUEST_CODE = 42
     private val USAGESTATS_PERMISSION_REQUEST_CODE = 228
 
-    private var mHaveOverlayPermission = true
-    private var mHaveStatsPermission = true
+    private var mHaveOverlayPermission = true // do we have a permission to show an overlay
+    private var mHaveStatsPermission = true // do we have usage statistics permission
+
     private lateinit var mButtonToggleService: Button
     private lateinit var mCollectionList: RecyclerView
     private lateinit var mServiceIntent: Intent
@@ -30,14 +28,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // we have a service
         mServiceIntent = Intent(this, MyService::class.java)
         mApplication = this.application as App
 
-        setContentView(R.layout.activity_main)
-        mButtonToggleService = findViewById(R.id.button_toggle_service) as Button
-        mCollectionList = findViewById(R.id.apps_collection) as RecyclerView
-        mButtonToggleService.setOnClickListener { toggleService() }
+        initializeUi()
 
+        requestPermissions()
+    }
+
+    private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             // nope
             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + packageName))
@@ -58,6 +58,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun initializeUi() {
+        setContentView(R.layout.activity_main)
+        mButtonToggleService = findViewById(R.id.button_toggle_service) as Button
+        mCollectionList = findViewById(R.id.apps_collection) as RecyclerView
+        mButtonToggleService.setOnClickListener { toggleService() }
+    }
+
     override fun onResume() {
         super.onResume()
         stopMyService()
@@ -69,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
+        // results of permission checks
         when (requestCode) {
             OVERLAY_PERMISSION_REQUEST_CODE -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -95,6 +102,7 @@ class MainActivity : AppCompatActivity() {
                 android.os.Process.myUid(), this.packageName) == AppOpsManager.MODE_ALLOWED
     }
 
+    // start/stop floating button service
     private fun toggleService() {
         if (!stopMyService()) {
             startMyService()

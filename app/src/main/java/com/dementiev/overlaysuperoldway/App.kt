@@ -1,14 +1,15 @@
 package com.dementiev.overlaysuperoldway
 
 import android.app.Application
-
-import java.util.ArrayList
+import java.util.*
 
 /**
- * Created by dron on 01.04.17.
+ * Just some singleton to collect data
+ * Created by dron247 on 01.04.17.
  */
 
 class App : Application() {
+    // should be explicitly specified with mutable type
     private val mCollected: MutableList<Info> = ArrayList()
 
     fun appendInfo(info: Info) {
