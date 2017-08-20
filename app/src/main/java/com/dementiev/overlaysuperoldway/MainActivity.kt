@@ -1,5 +1,6 @@
 package com.dementiev.overlaysuperoldway
 
+import android.app.AlertDialog
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
@@ -38,23 +39,65 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestPermissions() {
+        requestOverlayPermission()
+
+        requestUsageStatsPermission()
+    }
+
+    /**
+     * Usage stats permission request logic
+     */
+    private fun requestUsageStatsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !checkUsageStatsPermission()) {
+            val dialogBuilder = AlertDialog.Builder(this);
+            dialogBuilder.apply {
+                setMessage(R.string.usage_stats_request)
+                setCancelable(false)
+                setNegativeButton(R.string.action_refuse) { dialog, _ ->
+                    dialog.dismiss()
+                    finish()
+                }
+                setPositiveButton(R.string.action_proceed) { dialog, _ ->
+                    dialog.dismiss()
+                    // open system settings
+                    val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                    startActivityForResult(intent, USAGESTATS_PERMISSION_REQUEST_CODE)
+                }
+            }
+            // show dialog
+            dialogBuilder.create().show()
+        } else {
+            mHaveStatsPermission = true
+            showToast("Yay overlay stats!")
+        }
+    }
+
+    /**
+     * Overlay request
+     */
+    private fun requestOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-            // nope
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + packageName))
-            startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+            val dialogBuilder = AlertDialog.Builder(this);
+            dialogBuilder.apply {
+                setMessage(R.string.overlay_request)
+                setCancelable(false)
+                setNegativeButton(R.string.action_refuse) { dialog, _ ->
+                    dialog.dismiss()
+                    finish()
+                }
+                setPositiveButton(R.string.action_proceed) { dialog, _ ->
+                    dialog.dismiss()
+                    // open system settings
+                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + packageName))
+                    startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+                }
+            }
+            // show dialog
+            dialogBuilder.create().show()
         } else {
             // We good from the start
             mHaveOverlayPermission = true
             showToast("Yay overlay!")
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !checkUsageStatsPermission()) {
-            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            startActivityForResult(intent, USAGESTATS_PERMISSION_REQUEST_CODE)
-            // request usage stats
-        } else {
-            mHaveStatsPermission = true
-            showToast("Yay overlay stats!")
         }
     }
 

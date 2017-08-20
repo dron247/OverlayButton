@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">OverlaySuperOldWay</string>
+    <string name="app_name">Overlay example</string>
+    <string name="usage_stats_request">You have to allow usage stats permission for "Overlay example" app in system settings</string>
+    <string name="overlay_request">You have to allow draw overlay permission for "Overlay example" app in system settings</string>
+    <string name="action_refuse">Refuse</string>
+    <string name="action_proceed">Proceed</string>
 </resources>
